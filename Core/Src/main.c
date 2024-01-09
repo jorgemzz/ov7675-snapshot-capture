@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
+#include <ov7675.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -100,6 +101,15 @@ int main(void)
   MX_I2C2_Init();
   MX_DCMI_Init();
   /* USER CODE BEGIN 2 */
+  printf("OV7675 snapshot capture\n\r");
+
+  //OV7675 init
+  ov7675_init(&hi2c2);
+
+  //OV7675 config^M
+  ov7675_config();
+
+  //OV7675 start cap
 
   /* USER CODE END 2 */
 
@@ -107,6 +117,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  HAL_GPIO_TogglePin(LED_BLUE_GPIO_Port, LED_BLUE_Pin);
+	  HAL_Delay(200);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
