@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -57,6 +58,7 @@ static void MX_USART2_UART_Init(void);
 static void MX_I2C2_Init(void);
 /* USER CODE BEGIN PFP */
 #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+void DMATransferComplete(DMA_HandleTypeDef *hdma);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -71,7 +73,14 @@ static void MX_I2C2_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+	char msg[] =  "Long1 boat holystone pirate log driver hulk nipperkin cog. " \
+			"Buccaneer me lass poop deck spyglass maroon jib spike. Come" \
+			"about maroon skysail Corsair bilge water Arr long clothes " \
+			"transom.\r\n"
+			"Long2 boat holystone pirate log driver hulk nipperkin cog. " \
+			"Buccaneer me lass poop deck spyglass maroon jib spike. Come" \
+			"about maroon skysail Corsair bilge water Arr long clothes " \
+			"transom.\r\n";
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -96,13 +105,19 @@ int main(void)
   MX_USART2_UART_Init();
   MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
-
+  HAL_DMA_RegisterCallback(&hdma_usart2_tx, HAL_DMA_XFER_CPLT_CB_ID,
+		  &DMATransferComplete);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  printf("init time: %lu\r\n", HAL_GetTick());
+	  huart2.Instance->CR3 |= USART_CR3_DMAT;
+	  HAL_DMA_Start_IT(&hdma_usart2_tx, (uint32_t)msg, (uint32_t)&huart2.Instance->DR, strlen(msg));
+	  printf("end time: %lu\r\n", HAL_GetTick());
+	  HAL_Delay(1000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -291,6 +306,14 @@ PUTCHAR_PROTOTYPE
   HAL_UART_Transmit(&huart2, (uint8_t *)&ch, 1, 0xFFFF);
 
   return ch;
+}
+
+void DMATransferComplete(DMA_HandleTypeDef *hdma) {
+	// Disable UART DMA mode
+	huart2.Instance->CR3 &= ~USART_CR3_DMAT;
+
+	// Toggle LD2
+	HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
 }
 /* USER CODE END 4 */
 
