@@ -61,11 +61,22 @@ static void MX_I2C2_Init(void);
 static void MX_DCMI_Init(void);
 /* USER CODE BEGIN PFP */
 #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+//void DMATransferComplete(DMA_HandleTypeDef *hdma);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi){
+	printf("Frame received\n\r");
+}
 
+void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi){
+	printf("vsync\n\r");
+}
+
+void HAL_DCMI_LineEventCallback(DCMI_HandleTypeDef *hdcmi){
+	printf("line\n\r");
+}
 /* USER CODE END 0 */
 
 /**
@@ -75,7 +86,9 @@ static void MX_DCMI_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+	// Image buffer;
+	//unsigned char image[176 * 144 * 2]; // QCIF: 176x144 x 2 bytes per pixel (RGB565)
+	uint32_t buffer_32[176 * 144 * 2/4];
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -106,10 +119,16 @@ int main(void)
   //OV7675 init
   ov7675_init(&hi2c2);
 
-  //OV7675 config^M
+  //OV7675 config
   ov7675_config();
 
   //OV7675 start cap
+  //HAL_DMA_RegisterCallback(&hdma_dcmi, HAL_DMA_XFER_CPLT_CB_ID, &DMATransferComplete);
+
+  //Start capture
+  HAL_StatusTypeDef ret;
+  ret = HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_SNAPSHOT, (uint32_t)buffer_32, 176 * 144 * 2/4);
+  printf("start DMA ret:%d\n\r", ret);
 
   /* USER CODE END 2 */
 
@@ -117,6 +136,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  //HAL_DMA_Start_IT(&hdma_dcmi, SrcAddress, DstAddress, 176 * 144 * 2);
+
 	  HAL_GPIO_TogglePin(LED_BLUE_GPIO_Port, LED_BLUE_Pin);
 	  HAL_Delay(200);
     /* USER CODE END WHILE */

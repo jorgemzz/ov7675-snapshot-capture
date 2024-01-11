@@ -73,6 +73,7 @@ void ov7675_config(){
 uint8_t ov7675_i2c_write_register(uint8_t reg_addr, uint8_t data){
 	HAL_StatusTypeDef ret;
 	ret = HAL_I2C_Mem_Write(p_hi2c, OV7675_I2C_SLAVE_ADDR, reg_addr, 1, &data, 1, HAL_MAX_DELAY);
+	//printf("reg:0x%x data:0x%x\n\r", reg_addr, data);
 	if(ret != HAL_OK){
 		Error_Handler();
 	}
