@@ -73,6 +73,11 @@ uint32_t buffer_32[176 * 144 * 2/4];
 void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi){
 	HAL_GPIO_TogglePin(LED_BLUE_GPIO_Port, LED_BLUE_Pin);
 	printf("Frame received\n\r");
+	for(int i = 0; i< 128; i++){
+		printf("0x%04x, ", (uint16_t)buffer_32[i]);
+		printf("0x%04x, ", (uint16_t)(buffer_32[i] >> 16));
+	}
+	printf("\n\rFrame printed\n\r");
 }
 
 void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi){
@@ -132,7 +137,7 @@ int main(void)
 
   //Start capture
   HAL_StatusTypeDef ret;
-  ret = HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_CONTINUOUS, (uint32_t)buffer_32, 176 * 144 * 2/4);
+  ret = HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_CONTINUOUS, (uint32_t)buffer_32, 128);
   printf("start DMA ret:%d\n\r", ret);
 
   /* USER CODE END 2 */
