@@ -66,16 +66,23 @@ static void MX_DCMI_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+// Image buffer;
+//unsigned char image[176 * 144 * 2]; // QCIF: 176x144 x 2 bytes per pixel (RGB565)
+uint32_t buffer_32[176 * 144 * 2/4];
+
 void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi){
+	HAL_GPIO_TogglePin(LED_BLUE_GPIO_Port, LED_BLUE_Pin);
 	printf("Frame received\n\r");
 }
 
 void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi){
-	printf("vsync\n\r");
+	HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
+	//printf("V\n\r");
 }
 
 void HAL_DCMI_LineEventCallback(DCMI_HandleTypeDef *hdcmi){
-	printf("line\n\r");
+	HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
+	//printf("L");
 }
 /* USER CODE END 0 */
 
@@ -86,9 +93,7 @@ void HAL_DCMI_LineEventCallback(DCMI_HandleTypeDef *hdcmi){
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	// Image buffer;
-	//unsigned char image[176 * 144 * 2]; // QCIF: 176x144 x 2 bytes per pixel (RGB565)
-	uint32_t buffer_32[176 * 144 * 2/4];
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -127,7 +132,7 @@ int main(void)
 
   //Start capture
   HAL_StatusTypeDef ret;
-  ret = HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_SNAPSHOT, (uint32_t)buffer_32, 176 * 144 * 2/4);
+  ret = HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_CONTINUOUS, (uint32_t)buffer_32, 176 * 144 * 2/4);
   printf("start DMA ret:%d\n\r", ret);
 
   /* USER CODE END 2 */
@@ -138,7 +143,7 @@ int main(void)
   {
 	  //HAL_DMA_Start_IT(&hdma_dcmi, SrcAddress, DstAddress, 176 * 144 * 2);
 
-	  HAL_GPIO_TogglePin(LED_BLUE_GPIO_Port, LED_BLUE_Pin);
+	  HAL_GPIO_TogglePin(LED_ORANGE_GPIO_Port, LED_ORANGE_Pin);
 	  HAL_Delay(200);
     /* USER CODE END WHILE */
 

@@ -15,7 +15,7 @@ I2C_HandleTypeDef *p_hi2c = NULL;
 int info_clock_speed = 16;	/* External clock speed (MHz) */
 uint8_t info_clkrc = 1;		/* Clock divider value */
 uint8_t info_pll_bypass = 0;
-uint8_t info_pclk_hb_disable = 1;
+uint8_t info_pclk_hb_disable = 0;
 uint8_t info_fps = 1;
 
 struct ov7670_fract {
