@@ -68,16 +68,18 @@ static void MX_DCMI_Init(void);
 /* USER CODE BEGIN 0 */
 // Image buffer;
 //unsigned char image[176 * 144 * 2]; // QCIF: 176x144 x 2 bytes per pixel (RGB565)
-uint32_t buffer_32[176 * 144 * 2/4];
+uint32_t buffer_32[279 * 200 * 2/4];
 
 void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi){
 	HAL_GPIO_TogglePin(LED_BLUE_GPIO_Port, LED_BLUE_Pin);
-	printf("Frame received\n\r");
-	for(int i = 0; i< 128; i++){
-		printf("0x%04x, ", (uint16_t)buffer_32[i]);
-		printf("0x%04x, ", (uint16_t)(buffer_32[i] >> 16));
+	printf("Frame received2\n\r");
+	for(int i = 0; i< 279 * 200 * 2/4; i++){
+		uint16_t lo = buffer_32[i]&0xFFFF;
+		uint16_t hi= (buffer_32[i] >> 16)&0xFFFF;
+		printf("0x%x, ", lo);
+		printf("0x%x, ", hi);
 	}
-	printf("\n\rFrame printed\n\r");
+	printf("\n\rFrame printed2\n\r");
 }
 
 void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi){
@@ -137,7 +139,7 @@ int main(void)
 
   //Start capture
   HAL_StatusTypeDef ret;
-  ret = HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_CONTINUOUS, (uint32_t)buffer_32, 128);
+  ret = HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_CONTINUOUS, (uint32_t)buffer_32, 279 * 200 * 2/4);
   printf("start DMA ret:%d\n\r", ret);
 
   /* USER CODE END 2 */
@@ -223,8 +225,8 @@ static void MX_DCMI_Init(void)
   hdcmi.Instance = DCMI;
   hdcmi.Init.SynchroMode = DCMI_SYNCHRO_HARDWARE;
   hdcmi.Init.PCKPolarity = DCMI_PCKPOLARITY_RISING;
-  hdcmi.Init.VSPolarity = DCMI_VSPOLARITY_LOW;
-  hdcmi.Init.HSPolarity = DCMI_HSPOLARITY_HIGH;
+  hdcmi.Init.VSPolarity = DCMI_VSPOLARITY_HIGH;
+  hdcmi.Init.HSPolarity = DCMI_HSPOLARITY_LOW;
   hdcmi.Init.CaptureRate = DCMI_CR_ALL_FRAME;
   hdcmi.Init.ExtendedDataMode = DCMI_EXTEND_DATA_8B;
   hdcmi.Init.JPEGMode = DCMI_JPEG_DISABLE;
