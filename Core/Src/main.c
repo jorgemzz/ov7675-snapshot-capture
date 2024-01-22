@@ -68,27 +68,32 @@ static void MX_DCMI_Init(void);
 /* USER CODE BEGIN 0 */
 // Image buffer;
 //unsigned char image[176 * 144 * 2]; // QCIF: 176x144 x 2 bytes per pixel (RGB565)
-uint32_t buffer_32[279 * 200 * 2/4];
+uint32_t buffer_32[640 * 200 /4];
+int cap_num_bytes = 640*200;
+int lines = 0;
 
 void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi){
 	HAL_GPIO_TogglePin(LED_BLUE_GPIO_Port, LED_BLUE_Pin);
-	printf("Frame received2\n\r");
-	for(int i = 0; i< 279 * 200 * 2/4; i++){
+	printf("Frame received\n\r");
+	for(int i = 0; i< cap_num_bytes /4; i++){
 		uint16_t lo = buffer_32[i]&0xFFFF;
 		uint16_t hi= (buffer_32[i] >> 16)&0xFFFF;
 		printf("0x%x, ", lo);
 		printf("0x%x, ", hi);
 	}
-	printf("\n\rFrame printed2\n\r");
+	//printf("\n\rFrame printed\n\r");
+	printf("F --> %dl\n\r", lines);
 }
 
 void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi){
 	HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
-	//printf("V\n\r");
+	//printf("V --> %dl\n\r", lines);
+	lines = 0;
 }
 
 void HAL_DCMI_LineEventCallback(DCMI_HandleTypeDef *hdcmi){
 	HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
+	lines++;
 	//printf("L");
 }
 /* USER CODE END 0 */
@@ -129,17 +134,17 @@ int main(void)
   printf("OV7675 snapshot capture\n\r");
 
   //OV7675 init
-  ov7675_init(&hi2c2);
+  //ov7675_init(&hi2c2);
 
   //OV7675 config
-  ov7675_config();
+  //ov7675_config();
 
   //OV7675 start cap
   //HAL_DMA_RegisterCallback(&hdma_dcmi, HAL_DMA_XFER_CPLT_CB_ID, &DMATransferComplete);
 
   //Start capture
   HAL_StatusTypeDef ret;
-  ret = HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_CONTINUOUS, (uint32_t)buffer_32, 279 * 200 * 2/4);
+  ret = HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_CONTINUOUS, (uint32_t)buffer_32, cap_num_bytes/4);
   printf("start DMA ret:%d\n\r", ret);
 
   /* USER CODE END 2 */
@@ -225,7 +230,7 @@ static void MX_DCMI_Init(void)
   hdcmi.Instance = DCMI;
   hdcmi.Init.SynchroMode = DCMI_SYNCHRO_HARDWARE;
   hdcmi.Init.PCKPolarity = DCMI_PCKPOLARITY_RISING;
-  hdcmi.Init.VSPolarity = DCMI_VSPOLARITY_HIGH;
+  hdcmi.Init.VSPolarity = DCMI_VSPOLARITY_LOW;
   hdcmi.Init.HSPolarity = DCMI_HSPOLARITY_LOW;
   hdcmi.Init.CaptureRate = DCMI_CR_ALL_FRAME;
   hdcmi.Init.ExtendedDataMode = DCMI_EXTEND_DATA_8B;
